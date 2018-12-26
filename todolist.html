@@ -1,0 +1,129 @@
+<!DOCTYPE <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ToDo List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <style>
+        button{
+            background-color:white;
+            border-style: none;
+            color: green;
+        }
+        button.delbtn{
+            color: brown;
+        }
+        #main{
+            width: 980px;
+            margin: 0 auto;
+            
+        }
+        input,span.itemc{
+            width: 700px;
+        }
+        .over{
+            font-size: 70%;
+        }
+        ul{
+            list-style-type: circle;
+        }
+        .ptxt{
+            font-style: oblique;
+            font-size: 120%;
+            color: black;
+            background-color:bisque;
+        }
+        .showPane{
+            color: grey;
+        }
+    </style>
+</head>
+<body>
+    <div id='main'>
+        <div class="showPane">
+            <p class="ptxt">已完成：</p>
+            <ul>
+                <li v-for="item,index in finishedList" >
+                    <div class="showItem">
+                        <p>
+                            <span class="itemc">{{item}}</span>
+                            <span><button class="delbtn" @click="deleteOne(index)">&#10008</button></span>
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="needDo">
+            <p class="ptxt">待完成：</p>
+            <ul>
+                <li v-for="it,index in needDoList">
+                    <div class="doItem">
+                        <p>
+                            <span class="itemc">{{it}}</span>
+                            <span><button @click="hasFinish(index)">&#10004</button></span>
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="add">
+            <input type="text" v-model="itemContent" @keyup.enter="addOne"><button @click="addOne">增加条目</button>
+        </div>
+        <div class="over">
+            <p>已结束记录：</p>
+            <ul>
+                <li v-for="oitem in overList">{{oitem}}</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        var vm=new Vue({
+            el:"#main",
+            data:{
+                itemContent:'',
+                finishedList:[],
+                needDoList:[],
+                overList:[]
+            },
+            methods:{
+                addOne:function(){
+                    if (this.itemContent!='') {
+                        this.needDoList.push(this.itemContent);
+                        localStorage.setItem('needDoData',JSON.stringify(this.needDoList));
+                        this.itemContent='';
+                    }
+                },
+                hasFinish:function(index){
+                    this.finishedList.push(this.needDoList[index]);
+                    this.needDoList.splice(index,1);
+                    localStorage.setItem('hasFinishData',JSON.stringify(this.finishedList));
+                    localStorage.setItem('needDoData',JSON.stringify(this.needDoList));
+                },
+                deleteOne:function(index){
+                    this.overList.push(this.finishedList[index]);
+                    this.finishedList.splice(index,1);
+                    localStorage.setItem('hasFinishData',JSON.stringify(this.finishedList));
+                    if(this.overList.length>5){
+                        this.overList.shift();
+                    }
+                },
+                /*loadData:function(){
+                    this.needDoList=JSON.parse(localStorage.getItem('needDoData'));
+                    this.finishedList=JSON.parse(localStorage.getItem('hasFinishData'));
+                    if(this.needDoList===null){this.needDoList=[]};
+                    if(this.finishedList===null){this.finishedList=[]};
+                }*/
+            },
+            created:function(){
+                this.needDoList=JSON.parse(localStorage.getItem('needDoData'));
+                this.finishedList=JSON.parse(localStorage.getItem('hasFinishData'));
+                if(this.needDoList===null){this.needDoList=[]};
+                if(this.finishedList===null){this.finishedList=[]};
+            }
+        });
+        //window.onload=vm.loadData();
+    </script>
+</body>
+</html>
